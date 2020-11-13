@@ -1,0 +1,38 @@
+{
+  "name": "@runmeetly/logger",
+  "version": "0.0.1",
+  "description": "A simple logger",
+  "main": "dist/index.js",
+  "repository": "https://github.com/runmeetly/logger",
+  "author": "Peter Yamanaka <peter@runmeetly.com>",
+  "license": "Apache-2.0",
+  "private": false,
+  "keywords": [
+    "log",
+    "logging",
+    "logger",
+    "es6"
+  ],
+  "devDependencies": {
+    "@babel/core": "7.11.1",
+    "@babel/plugin-proposal-class-properties": "7.10.4",
+    "@babel/preset-env": "7.11.0",
+    "@babel/register": "7.10.5",
+    "babel-loader": "8.1.0",
+    "cross-env": "7.0.2",
+    "eslint": "7.6.0",
+    "eslint-loader": "4.0.2",
+    "prettier": "2.0.5",
+    "source-map-loader": "1.0.1",
+    "uglifyjs-webpack-plugin": "2.2.0",
+    "webpack": "4.44.1",
+    "webpack-cli": "3.3.12"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack --progress --colors --optimize-minimize",
+    "clean-dist": "[ -e ./dist ] && [ -d ./dist ] && rm -rf ./dist",
+    "clean-modules": "[ -e ./node_modules ] && [ -d ./node_modules ] && rm -rf ./node_modules",
+    "clean": "yarn clean-dist && yarn clean-modules",
+    "prepare-publish": "yarn clean && yarn && yarn build"
+  }
+}
