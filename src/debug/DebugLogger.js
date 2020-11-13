@@ -1,10 +1,10 @@
 function getCurrentFileNameChrome() {
   try {
-    // <stuff>
-    const lineWithFileName = new Error().stack.match(/<.*>/)[0];
+    // at <stuff>
+    const lineWithFileName = new Error().stack.match(/at <.*>/)[0];
 
     // stuff>
-    const lineWithoutAt = lineWithFileName.substring(1);
+    const lineWithoutAt = lineWithFileName.substring(4);
 
     // stuff
     return lineWithoutAt.substring(0, lineWithoutAt.length - 1);
@@ -16,7 +16,7 @@ function getCurrentFileNameChrome() {
 function getCurrentFileNameFirefox() {
   try {
     // @stuff:1:
-    const lineWithFileName = new Error().stack.match(/@.*:/)[0];
+    const lineWithFileName = new Error().stack.match(/^@.*:/)[0];
 
     // stuff:1:
     const lineWithoutAt = lineWithFileName.substring(1);
@@ -41,17 +41,25 @@ function getCurrentFileName() {
   return null;
 }
 
-function createMessage(...args) {
-  const fileName = getCurrentFileName();
-  if (fileName) {
-    return [
-      `[%c${fileName}%c]`,
-      "color: green; font-weight: 700;",
-      "color: none;",
-      ...args,
-    ];
+function prependTag(tag, ...args) {
+  return [
+    `[%c${tag}%c]`,
+    "color: green; font-weight: 700;",
+    "color: none;",
+    ...args,
+  ];
+}
+
+function createMessage(tag, ...args) {
+  if (tag) {
+    return prependTag(tag, ...args);
   } else {
-    return args;
+    const fileName = getCurrentFileName();
+    if (fileName) {
+      return prependTag(fileName, ...args);
+    } else {
+      return args;
+    }
   }
 }
 
@@ -59,11 +67,12 @@ export class DebugLogger {
   /**
    * Log
    *
+   * @param tag
    * @param args
    * @returns {DebugLogger}
    */
-  log(...args) {
-    const message = createMessage(...args);
+  log(tag, ...args) {
+    const message = createMessage(tag, ...args);
     console.log(...message);
     return this;
   }
@@ -71,11 +80,12 @@ export class DebugLogger {
   /**
    * Debug
    *
+   * @param tag
    * @param args
    * @returns {DebugLogger}
    */
-  debug(...args) {
-    const message = createMessage(...args);
+  debug(tag, ...args) {
+    const message = createMessage(tag, ...args);
     console.debug(...message);
     return this;
   }
@@ -83,11 +93,12 @@ export class DebugLogger {
   /**
    * Info
    *
+   * @param tag
    * @param args
    * @returns {DebugLogger}
    */
-  info(...args) {
-    const message = createMessage(...args);
+  info(tag, ...args) {
+    const message = createMessage(tag, ...args);
     console.info(...message);
     return this;
   }
@@ -95,11 +106,12 @@ export class DebugLogger {
   /**
    * Warn
    *
+   * @param tag
    * @param args
    * @returns {DebugLogger}
    */
-  warn(...args) {
-    const message = createMessage(...args);
+  warn(tag, ...args) {
+    const message = createMessage(tag, ...args);
     console.warn(...message);
     return this;
   }
@@ -107,11 +119,12 @@ export class DebugLogger {
   /**
    * Error
    *
+   * @param tag
    * @param args
    * @returns {DebugLogger}
    */
-  error(...args) {
-    const message = createMessage(...args);
+  error(tag, ...args) {
+    const message = createMessage(tag, ...args);
     console.error(...message);
     return this;
   }

@@ -1,5 +1,72 @@
-class Root {
+class TaggedLogger {
+  constructor(tag, emit) {
+    // You can use this
+    this.tag = tag;
+
+    // But please don't use this
+    this.$__emit = emit;
+  }
+
+  /**
+   * Log
+   *
+   * @param args
+   * @returns {TaggedLogger}
+   */
+  log(...args) {
+    this.$__emit((impl) => impl.log, this.tag, ...args);
+    return this;
+  }
+
+  /**
+   * Debug
+   *
+   * @param args
+   * @returns {TaggedLogger}
+   */
+  debug(...args) {
+    this.$__emit((impl) => impl.debug, this.tag, ...args);
+    return this;
+  }
+
+  /**
+   * Info
+   *
+   * @param args
+   * @returns {TaggedLogger}
+   */
+  info(...args) {
+    this.$__emit((impl) => impl.info, this.tag, ...args);
+    return this;
+  }
+
+  /**
+   * Warn
+   *
+   * @param args
+   * @returns {TaggedLogger}
+   */
+  warn(...args) {
+    this.$__emit((impl) => impl.warn, this.tag, ...args);
+    return this;
+  }
+
+  /**
+   * Error
+   *
+   * @param args
+   * @returns {TaggedLogger}
+   */
+  error(...args) {
+    this.$__emit((impl) => impl.error, this.tag, ...args);
+    return this;
+  }
+}
+
+class Root extends TaggedLogger {
   constructor() {
+    super(null, (method, tag, ...args) => emit(method, tag, ...args));
+
     /**
      * The backing storage for all log implementations
      *
@@ -34,67 +101,23 @@ class Root {
       }
     };
 
-    function emit(method, ...args) {
+    function emit(method, tag, ...args) {
       for (const impl of Object.values(implementations)) {
         if (impl) {
-          method(impl)(...args);
+          method(impl)(tag, ...args);
         }
       }
     }
 
     /**
-     * Log
      *
-     * @param args
-     * @returns {Root}
+     * @param tag
+     * @returns {TaggedLogger}
      */
-    self.log = function log(...args) {
-      emit((impl) => impl.log, ...args);
-      return self;
-    };
-
-    /**
-     * Debug
-     *
-     * @param args
-     * @returns {Root}
-     */
-    self.debug = function debug(...args) {
-      emit((impl) => impl.debug, ...args);
-      return self;
-    };
-
-    /**
-     * Info
-     *
-     * @param args
-     * @returns {Root}
-     */
-    self.info = function info(...args) {
-      emit((impl) => impl.info, ...args);
-      return self;
-    };
-
-    /**
-     * Warn
-     *
-     * @param args
-     * @returns {Root}
-     */
-    self.warn = function warn(...args) {
-      emit((impl) => impl.warn, ...args);
-      return self;
-    };
-
-    /**
-     * Error
-     *
-     * @param args
-     * @returns {Root}
-     */
-    self.error = function error(...args) {
-      emit((impl) => impl.error, ...args);
-      return self;
+    self.tag = function tag(tag) {
+      return new TaggedLogger(tag, (method, tag, ...args) =>
+        emit(method, tag, ...args)
+      );
     };
   }
 }
